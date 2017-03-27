@@ -12,8 +12,9 @@ HL_LIBS =
 include Makefile.config
 
 #LibopenCM3 location
-libopenCM3Path = ./unicore-mx
-#./libopencm3
+libopenCM3Path = ./libopencm3
+
+#./unicore-mx
 SRCLIBDIR = $(libopenCM3Path)
 
 INCLUDE_DIR = $(libopenCM3Path)/include
@@ -35,8 +36,8 @@ LDFLAGS		+= -T$(LDSCRIPT)
 LDFLAGS		+= -Wl,-Map=$(*).map
 LDFLAGS		+= -Wl,--gc-sections
 
-LIBNAME = ucmx_stm32f1
-#LIBNAME = opencm3_stm32f1
+#LIBNAME = ucmx_stm32f1
+LIBNAME = opencm3_stm32f1
 #LIBNAME = opencm3_stm32f4
 
 

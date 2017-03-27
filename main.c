@@ -21,14 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unicore-mx/stm32/rcc.h>
+
+//#include <unicore-mx/stm32/rcc.h>
+//#include <unicore-mx/cm3/nvic.h>
+//#include <unicore-mx/cm3/systick.h>
+//#include <unicore-mx/usbd/usbd.h>
+//#include <unicore-mx/usb/class/hid.h>
+//#include <unicore-mx/usbd/misc/string.h>
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
+#include <libopencm3/usb/usbd.h>
+//#include <libopencm3/usbd/misc/string.h>
 
 
-#include <unicore-mx/cm3/nvic.h>
-#include <unicore-mx/cm3/systick.h>
-#include <unicore-mx/usbd/usbd.h>
-#include <unicore-mx/usb/class/hid.h>
-#include <unicore-mx/usbd/misc/string.h>
+
 #include "lowlevel/usbhid-target.h"
 #include "lowlevel/usb.h"
 

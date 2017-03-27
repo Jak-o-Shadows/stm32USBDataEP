@@ -50,11 +50,9 @@ const struct usb_interface_descriptor bulk_iface = {
 	.bInterfaceSubClass = 0xFF, 
 	.bInterfaceProtocol = 0xFF, 
 	.iInterface = 0,
-
 	.endpoint = &bulk_endpoint, //does this meant to have an &?
-
 	.extra = NULL,//&hid_function,
-	.extra_len = 0,//sizeof(hid_function),
+	.extralen = 0,//sizeof(hid_function), //unicore-mx uses .extra_len
 };
 
 const struct usb_interface ifaces[] = {{
@@ -62,7 +60,8 @@ const struct usb_interface ifaces[] = {{
 	.altsetting = &bulk_iface,
 }};
 
-const struct usb_config_descriptor config[] = {{
+//changed things here when moving to loc3
+const struct usb_config_descriptor config ={
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
 	.wTotalLength = 0,
@@ -72,7 +71,7 @@ const struct usb_config_descriptor config[] = {{
 	.bmAttributes = 0x80,
 	.bMaxPower = 0x32,
 	.interface = ifaces,
-}};
+};
 
 const struct usb_device_descriptor dev_descr = {
 	.bLength = USB_DT_DEVICE_SIZE,
@@ -89,8 +88,7 @@ const struct usb_device_descriptor dev_descr = {
 	.iProduct = 2,
 	.iSerialNumber = 3,
 	.bNumConfigurations = 1,
-
-	.config = config
+	//.config = config,  //unicore-mx
 };
 
 static const char *usb_strings_ascii[] = {
@@ -127,12 +125,12 @@ static const char *usb_strings_ascii[] = {
 
 
 
-
-int usb_strings(usbd_device *dev, struct usbd_get_string_arg *arg)
-{
-	(void)dev;
-	return usbd_handle_string_ascii(arg, usb_strings_ascii, 4);
-}
+//unicore-mx
+//int usb_strings(usbd_device *dev, struct usbd_get_string_arg *arg)
+//{
+//	(void)dev;
+//	return usbd_handle_string_ascii(arg, usb_strings_ascii, 4);
+//}
 
 static void bulk_tx_cb(usbd_device *dev, uint8_t ep) {
 	char buf[64] __attribute((aligned(4)));
@@ -147,16 +145,20 @@ static void bulk_tx_cb(usbd_device *dev, uint8_t ep) {
 
 }
 
-void hid_set_config(usbd_device *dev,
-				const struct usb_config_descriptor *cfg) {
+//unicore-mx
+//void hid_set_config(usbd_device *dev,	const struct usb_config_descriptor *cfg) {
+void hid_set_config(usbd_device *dev, uint16_t wValue){
 					
 	uint8_t data[64] __attribute__((aligned(4)));
 	for (int i=1;i<64;i++){
 		data[i] = i;
 	}
 					
-					
-	(void)cfg;
+	//unicore-mx
+	//(void)cfg;
+	
+	//loc3
+	(void)wValue;
 
 	usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_BULK, 64, bulk_tx_cb); //last thing is a function!
 
@@ -218,12 +220,13 @@ usbhid_target_usbd_after_init_and_before_first_poll(void) { /* empty */ }
 void usbSetup(void){
 	usbhid_target_init(); //not HID specific. See usbhid-target.c
 
-	usbd_dev = usbd_init(usbhid_target_usb_driver(), &dev_descr,
-		usbd_control_buffer, sizeof(usbd_control_buffer)); //not HID specific. See usbhid-target.c
-
+	//unicore-mx
+//	usbd_dev = usbd_init(usbhid_target_usb_driver(), &dev_descr, usbd_control_buffer, sizeof(usbd_control_buffer)); //not HID specific. See usbhid-target.c
+	//loc3
+	usbd_dev = usbd_init(usbhid_target_usb_driver(), &dev_descr, &config, usb_strings_ascii, 4, usbd_control_buffer,sizeof(usbd_control_buffer)); 
 
 	usbd_register_set_config_callback(usbd_dev, hid_set_config); //not HID specific. See usbhid-target.c
-	usbd_register_get_string_callback(usbd_dev, usb_strings);
+	//usbd_register_get_string_callback(usbd_dev, usb_strings); //used in unicore-mx
 	
 	//enable interrupt
 	nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
