@@ -224,20 +224,27 @@ void usbSetup(void){
 
 	usbd_register_set_config_callback(usbd_dev, hid_set_config); //not HID specific. See usbhid-target.c
 	usbd_register_get_string_callback(usbd_dev, usb_strings);
-	//usbd_register_setup_callback(usbd_dev, simple_setup_callback);
 	
+	//enable interrupt
+	nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+	nvic_enable_irq(NVIC_USB_WAKEUP_IRQ);
 	
 }
 
-
+//POLLING FROM MAIN LOOP
 void usbInLoop(void){
 	usbd_poll(usbd_dev);
 }
 
 
+//various interrupts
+void usb_wakeup_isr(void) {
+  usbd_poll(usbd_dev);
+}
 
-
-
+void usb_lp_can_rx0_isr(void) {
+  usbd_poll(usbd_dev);
+}
 
 
 

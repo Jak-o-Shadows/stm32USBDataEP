@@ -42,7 +42,8 @@ int main(void) {
 	usbhid_target_usbd_after_init_and_before_first_poll();
 	
 	while (1) {
-		usbInLoop();// same as usbd_poll(usbd_dev);
+		__asm__("nop");
+		//usbInLoop();// same as usbd_poll(usbd_dev);
 	}
 }
 
