@@ -31,21 +31,28 @@ uint8_t started = 0;
 
 
 
-const struct usb_endpoint_descriptor bulk_endpoint = {
+const struct usb_endpoint_descriptor bulk_endpoint[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x81,
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,   //WAS 4 - CHANGED TO TEST SOMETHING ON THE 2-12-2016 BY J
 	.bInterval = 1,
-};
+}, {
+	.bLength = USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType = USB_DT_ENDPOINT,
+	.bEndpointAddress = 0x01,
+	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
+	.wMaxPacketSize = 64,
+	.bInterval = 1,
+}};
 
 const struct usb_interface_descriptor bulk_iface = {
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 0,
 	.bAlternateSetting = 0,
-	.bNumEndpoints = 1,
+	.bNumEndpoints = 2,
 	.bInterfaceClass = 0xFF, //FIX ME FIX ME - surely these have proper names?
 	.bInterfaceSubClass = 0xFF, 
 	.bInterfaceProtocol = 0xFF, 
@@ -145,6 +152,16 @@ static void bulk_tx_cb(usbd_device *dev, uint8_t ep) {
 
 }
 
+static void bulk_rx_cb(usbd_device *dev, uint8_t ep) {
+	char buf[64] __attribute ((aligned(4)));
+	
+	(void)ep;
+	usbd_ep_read_packet(dev, 0x01, buf, 64);
+	
+}
+
+
+
 //unicore-mx
 //void hid_set_config(usbd_device *dev,	const struct usb_config_descriptor *cfg) {
 void hid_set_config(usbd_device *dev, uint16_t wValue){
@@ -161,6 +178,7 @@ void hid_set_config(usbd_device *dev, uint16_t wValue){
 	(void)wValue;
 
 	usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_BULK, 64, bulk_tx_cb); //last thing is a function!
+	usbd_ep_setup(dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64, bulk_rx_cb);// bulk_tx_cb is a function
 
 	started = 1;
 	
